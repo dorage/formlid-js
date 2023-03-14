@@ -1,17 +1,17 @@
 # Formlid-js
 
-Formlid-js is form helper package for solid-js
+Formlid-js is Form helper package for [Solid-JS](https://www.solidjs.com/) with [Yup](https://www.npmjs.com/package/yup) as the validation schema
 
 ## Installation
 
 ```bash
-Coming soon... 
+Coming Soon...
 ```
 
 ## Usage
 
 ```Typescript
-Coming soon... 
+Coming Soon...
 ```
 
 ## Contributing
