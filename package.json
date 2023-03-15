@@ -1,14 +1,14 @@
 {
   "name": "formlid-js",
   "author": "dorage",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Formlid-js is Form helper package for Solid-JS with Yup as the validation schema",
   "license": "ISC",
   "scripts": {
     "build":"npx tsc"
   },
-  "main": "dist/index.js",
-  "types": "dist/types/index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
   "keywords": [
     "solid-js",
     "solid",
