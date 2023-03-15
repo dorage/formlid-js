@@ -1,9 +1,9 @@
-import FormContext from 'contexts/form-context';
-import { createFormSignals } from 'functions/form';
-import pure from 'functions/pure';
 import { Component, JSX } from 'solid-js';
-import { UKey } from 'types/utils';
 import * as Yup from 'yup';
+import FormContext from './contexts/form-context';
+import { createFormSignals } from './functions/form';
+import pure from './functions/pure';
+import { UKey } from './types/utils';
 
 // useForm의 Props
 interface useFormProps<TFormValue extends object> {
@@ -30,7 +30,7 @@ const useForm = <TFormValue extends object>(props: useFormProps<TFormValue>) => 
   const getValues = (): TFormValue => {
     const values: any = {};
 
-    keys.forEach((key) => (values[key] = formSignals[key].value[0]()));
+    keys.forEach((key: UKey<TFormValue>) => (values[key] = formSignals[key].value[0]()));
 
     return values;
   };
@@ -96,7 +96,7 @@ const useForm = <TFormValue extends object>(props: useFormProps<TFormValue>) => 
       });
       // 에러 없는 필드 초기화
       for (const key of [...keySet]) {
-        formSignals[key].error[1](() => '');
+        formSignals[key as UKey<typeof formSignals>].error[1](() => '');
       }
       return false;
     }
