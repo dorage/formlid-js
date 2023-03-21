@@ -1,6 +1,6 @@
 import { createSignal, Signal } from 'solid-js';
-import { CustomInputEvent } from '../types/event';
-import { UKey, UKeys } from '../types/utils';
+import { CustomInputEvent } from '../typing/event';
+import { UKey, UKeys } from '../typing/utils';
 
 /**
  * 하나의 field가 갖는 값

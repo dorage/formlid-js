@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 import FormContext from './contexts/form-context';
 import { createFormSignals } from './functions/form';
 import pure from './functions/pure';
-import { UKey } from './types/utils';
+import { UKey } from './typing/utils';
 
 // useForm의 Props
 interface useFormProps<TFormValue extends object> {

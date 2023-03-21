@@ -1,7 +1,7 @@
 import FormContext from './contexts/form-context';
 import { JSX, useContext } from 'solid-js';
-import { CustomInputEvent } from './types/event';
-import { UKey } from './types/utils';
+import { CustomInputEvent } from './typing/event';
+import { UKey } from './typing/utils';
 
 // Form Context Field Types
 
