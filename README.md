@@ -5,7 +5,7 @@ Formlid-js is Form helper package for [Solid-JS](https://www.solidjs.com/) with 
 ## Installation
 
 ```bash
-Coming Soon...
+npm i formlid-js
 ```
 
 ## Usage
