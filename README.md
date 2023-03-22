@@ -8,10 +8,26 @@ Formlid-js is Form helper package for [Solid-JS](https://www.solidjs.com/) with 
 npm i formlid-js
 ```
 
+If you encounter ==ReferenceError: React is not defined==. Add the code below in the ==vite.config.ts==
+
+```json
+export default defineConfig({
+
+  ...
+  
+  optimizeDeps:  {
+    include:  [],
+    exclude:  ['formlid-js'],
+  }
+});
+```
+
 ## Usage
 
-```Typescript
-Coming Soon...
+try to check projects under ==examples/==
+
+```
+┬┴┬┴┬┴┤´❛ᴥ❛`ʔฅ = Sorry, I'm preparing API documents
 ```
 
 ## Contributing
