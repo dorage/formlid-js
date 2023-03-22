@@ -8,13 +8,11 @@ Formlid-js is Form helper package for [Solid-JS](https://www.solidjs.com/) with 
 npm i formlid-js
 ```
 
-If you encounter ==ReferenceError: React is not defined==. Add the code below in the ==vite.config.ts==
+If you encounter ReferenceError: React is not defined. Add the code below in the vite.config.ts
 
-```json
+```typescript
 export default defineConfig({
-
   ...
-  
   optimizeDeps:  {
     include:  [],
     exclude:  ['formlid-js'],
