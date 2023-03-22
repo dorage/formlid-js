@@ -1,0 +1,67 @@
+.app {
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+
+  width: 100vw;
+  height: 100vh;
+}
+
+.header {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.main {
+  padding: 25px;
+  width:350px;
+  border-radius: 10px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.form {
+  display:flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form > div {
+  display:flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form button {
+  height: 55px;
+  background: #F2F2F2;
+  border-radius: 11px;
+  border: 0;
+  outline: none;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  background: linear-gradient(180deg, #363636 0%, #1B1B1B 50%, #000000 100%);
+  box-shadow: 0px 0px 0px 0px #FFFFFF, 0px 0px 0px 0px #000000;
+  transition: all 0.3s cubic-bezier(0.15, 0.83, 0.66, 1);
+}
+.form button:hover {
+  box-shadow: 0px 0px 0px 2px #FFFFFF, 0px 0px 0px 4px #0000003a;
+}
+
+.form label {
+  font-size: 10px;
+  color: #8B8E98;
+  font-weight: 600;
+}
+
+.form input {
+  height: 40px;
+  padding: 0 0 0 16px;
+  border-radius: 9px;
+  outline: none;
+  background-color: #F2F2F2;
+  border: 1px solid #e5e5e500;
+  transition: all 0.3s cubic-bezier(0.15, 0.83, 0.66, 1);
+}
