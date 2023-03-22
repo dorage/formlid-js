@@ -22,7 +22,7 @@ export default defineConfig({
 
 ## Usage
 
-try to check projects under ==examples/==
+try to check projects under examples/
 
 ```
 ┬┴┬┴┬┴┤´❛ᴥ❛`ʔฅ = Sorry, I'm preparing API documents
