@@ -10,6 +10,7 @@ interface fieldSignal<TValue> {
   error: Signal<string>;
   touched: Signal<boolean>;
   focus: Signal<boolean>;
+  validated: Signal<boolean>;
   oninput: (e: CustomInputEvent) => void;
   onfocus: (e: CustomInputEvent) => void;
   onblur: (e: CustomInputEvent) => void;
@@ -30,7 +31,8 @@ type formSignal<TFormValue extends object> = {
  */
 export const createFormSignals = <TFormValue extends object>(
   initialValue: TFormValue,
-  keys: UKeys<TFormValue>
+  keys: UKeys<TFormValue>,
+  validateField?: (key: UKey<TFormValue>) => Promise<boolean>
 ): formSignal<TFormValue> => {
   let formSignals: any = {};
 
@@ -40,8 +42,10 @@ export const createFormSignals = <TFormValue extends object>(
       error: createSignal(''),
       touched: createSignal(false),
       focus: createSignal(false),
-      oninput: (e: CustomInputEvent) => {
+      validated: createSignal(false), // 한 번이라도 validate가 실행되었던 field인지 체크
+      oninput: async (e: CustomInputEvent) => {
         formSignals[key]!.value[1](e.currentTarget.value as any);
+        if (validateField) validateField(key);
       },
       onfocus: (e: CustomInputEvent) => {
         formSignals[key]!.touched[1](true);

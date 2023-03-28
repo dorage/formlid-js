@@ -2,6 +2,7 @@ import FormContext from './contexts/form-context';
 import { JSX, useContext } from 'solid-js';
 import { CustomInputEvent } from './types/event';
 import { UKey } from './types/utils';
+import { FormContextHelpers } from './use-form';
 
 // Form Context Field Types
 
@@ -27,17 +28,6 @@ interface FormContextForm {
     }
   >;
 }
-interface FormContextHelpers<TFormValue> {
-  setValue: (
-    name: keyof TFormValue,
-    setter: (prev: TFormValue[keyof TFormValue]) => TFormValue[keyof TFormValue]
-  ) => TFormValue[keyof TFormValue];
-  setError: (name: keyof TFormValue, setter: (prev: string) => string) => string;
-  setTouched: (name: keyof TFormValue, setter: (prev: boolean) => boolean) => boolean;
-  emitSubmit: () => void;
-  validate: (formData: TFormValue) => Promise<boolean>;
-  getValues: () => TFormValue;
-}
 
 // Form Context Type
 
@@ -59,7 +49,13 @@ const useField = <TFormValue extends object>(name: UKey<TFormValue>) => {
     meta: () => context.meta(name),
     extension: () => context.extension(name),
     form: () => context.form(),
-    helpers: context.helpers,
+    helpers: {
+      ...context.helpers,
+      setValue: (setter: (prev: TFormValue[keyof TFormValue]) => TFormValue[keyof TFormValue]) =>
+        context.helpers.setValue(name, setter),
+      setError: (setter: (prev: string) => string) => context.helpers.setError(name, setter),
+      setTouched: (setter: (prev: boolean) => boolean) => context.helpers.setTouched(name, setter),
+    },
   };
 };
 export default useField;

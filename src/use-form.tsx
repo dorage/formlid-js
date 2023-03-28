@@ -1,15 +1,33 @@
-import { Component, JSX } from 'solid-js';
+import { Accessor, Component, createSignal, JSX } from 'solid-js';
 import * as Yup from 'yup';
 import FormContext from './contexts/form-context';
 import { createFormSignals } from './functions/form';
 import pure from './functions/pure';
 import { UKey } from './types/utils';
 
+export interface FormContextHelpers<TFormValue> {
+  isSubmitted: Accessor<boolean>;
+  isSubmitting: Accessor<boolean>;
+  getValues: () => TFormValue;
+  setValue: (
+    name: keyof TFormValue,
+    setter: (prev: TFormValue[keyof TFormValue]) => TFormValue[keyof TFormValue]
+  ) => TFormValue[keyof TFormValue];
+  setValues: (setter: (prev: TFormValue) => TFormValue) => void;
+  getErrors: () => { [key in keyof TFormValue]: boolean };
+  setError: (name: keyof TFormValue, setter: (prev: string) => string) => string;
+  getTouched: () => { [key in keyof TFormValue]: boolean };
+  setTouched: (name: keyof TFormValue, setter: (prev: boolean) => boolean) => boolean;
+  emitSubmit: () => void;
+  validate: (formData: TFormValue) => Promise<boolean>;
+}
+
 // useForm의 Props
 interface useFormProps<TFormValue extends object> {
   initialValues: TFormValue;
-  validationSchema?: Yup.Schema<TFormValue>;
-  onsubmit: (formData: TFormValue) => void;
+  validationSchema?: { [key in keyof TFormValue]: Yup.Schema<TFormValue[key]> };
+  onsubmit: (formData: TFormValue, helpers: FormContextHelpers<TFormValue>) => void;
+  validateOnSubmit?: boolean;
 }
 
 /**
@@ -18,9 +36,6 @@ interface useFormProps<TFormValue extends object> {
  * @returns
  */
 const useForm = <TFormValue extends object>(props: useFormProps<TFormValue>) => {
-  const keys = pure.typeKeys(props.initialValues);
-  const formSignals = createFormSignals(props.initialValues, keys);
-
   // Form methods
 
   /**
@@ -46,6 +61,29 @@ const useForm = <TFormValue extends object>(props: useFormProps<TFormValue>) => 
   ) => formSignals[name].value[1](setter);
 
   /**
+   * field들을 직접 수정합니다.
+   * @param name
+   * @param value
+   */
+  const setValues = (setter: (prev: TFormValue) => TFormValue) => {
+    const newValues = setter(getValues());
+    for (const key of keys) {
+      formSignals[key].value[1](() => newValues[key]);
+    }
+  };
+
+  /**
+   * form error 객체를 가져옵니다
+   * @returns
+   */
+  const getErrors = (): { [key in keyof TFormValue]: boolean } => {
+    const values: any = {};
+
+    keys.forEach((key: UKey<TFormValue>) => (values[key] = formSignals[key].error[0]()));
+
+    return values;
+  };
+  /**
    * error를 직접 수정합니다
    * @param name
    * @param setter
@@ -54,6 +92,17 @@ const useForm = <TFormValue extends object>(props: useFormProps<TFormValue>) => 
   const setError = (name: UKey<TFormValue>, setter: (prev: string) => string) =>
     formSignals[name].error[1](setter);
 
+  /**
+   * form error 객체를 가져옵니다
+   * @returns
+   */
+  const getTouched = (): { [key in keyof TFormValue]: boolean } => {
+    const values: any = {};
+
+    keys.forEach((key: UKey<TFormValue>) => (values[key] = formSignals[key].touched[0]()));
+
+    return values;
+  };
   /**
    * touched를 직접 수정합니다
    * @param name
@@ -72,47 +121,55 @@ const useForm = <TFormValue extends object>(props: useFormProps<TFormValue>) => 
   };
 
   /**
+   * validate field
+   * @param key
+   * @returns
+   */
+  const validateField = async (key: UKey<TFormValue>) => {
+    if (props.validationSchema == null) return true;
+    if (props.validationSchema[key] == null) return true;
+    try {
+      formSignals[key].validated[1](() => true);
+      await props.validationSchema[key].validate(formSignals[key].value[0](), { strict: true });
+      formSignals[key].error[1](() => '');
+      return true;
+    } catch (err) {
+      formSignals[key].error[1](() => (err as Yup.ValidationError).message);
+    }
+    return false;
+  };
+  /**
    * validate formData
    * @param formData
    * @returns
    */
   const validate = async (formData: TFormValue) => {
     if (props.validationSchema == null) return true;
-
-    try {
-      await props.validationSchema.validate(formData, {
-        strict: true,
-        abortEarly: false,
-      });
-      return true;
-    } catch (err) {
-      const keySet = new Set(keys);
-      // 에러 주입
-      (err as Yup.ValidationError).inner.forEach((error) => {
-        const key = error.path as UKey<TFormValue>;
-        const message = error.message;
-        keySet.delete(key);
-        formSignals[key].error[1](message);
-      });
-      // 에러 없는 필드 초기화
-      for (const key of [...keySet]) {
-        formSignals[key as UKey<typeof formSignals>].error[1](() => '');
-      }
-      return false;
+    let success = true;
+    for (const key of keys) {
+      success = await validateField(key);
     }
+    return success;
   };
 
   /**
-   * 직접 submit을 실행합니다
+   * submit을 실행합니다
    */
   const emitSubmit = async () => {
+    if (isSubmitting()) return;
+    setIsSubmitting(() => true);
     const formData = getValues();
 
     // validation
-    if (!(await validate(formData))) return;
+    if (!(await validate(formData))) {
+      setIsSubmitting(() => false);
+      return;
+    }
 
     // submit
-    props.onsubmit(formData);
+    await props.onsubmit(formData, helpers);
+    setIsSubmitted(() => true);
+    setIsSubmitting(() => false);
   };
 
   // Input methods
@@ -137,8 +194,11 @@ const useForm = <TFormValue extends object>(props: useFormProps<TFormValue>) => 
    */
   const meta = (name: UKey<TFormValue>) => ({
     error: formSignals[name].error[0](),
-    isError: formSignals[name].error[0]() !== '' && formSignals[name].touched[0](),
-    isSuccess: formSignals[name].error[0]() === '' && formSignals[name].touched[0](),
+    isError: formSignals[name].error[0]() !== '',
+    isSuccess:
+      formSignals[name].error[0]() === '' &&
+      formSignals[name].touched[0]() &&
+      formSignals[name].validated[0](),
     isFocus: formSignals[name].focus[0](),
     isTouched: formSignals[name].touched[0](),
   });
@@ -158,13 +218,29 @@ const useForm = <TFormValue extends object>(props: useFormProps<TFormValue>) => 
     onsubmit,
   });
 
-  const helpers = {
+  // variables and signals
+  const keys = pure.typeKeys(props.initialValues);
+  const formSignals = createFormSignals(
+    props.initialValues,
+    keys,
+    props.validateOnSubmit ? undefined : validateField
+  );
+  const [isSubmitting, setIsSubmitting] = createSignal(false);
+  const [isSubmitted, setIsSubmitted] = createSignal(false);
+
+  // helpers
+  const helpers: FormContextHelpers<TFormValue> = {
+    isSubmitted,
+    isSubmitting,
+    getValues,
     setValue,
+    setValues,
+    getErrors,
     setError,
+    getTouched,
     setTouched,
     emitSubmit,
     validate,
-    getValues,
   };
 
   const SolidFormContext: Component<{ children: JSX.Element }> = (props) => {
