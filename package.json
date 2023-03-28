@@ -5,7 +5,7 @@
   "description": "Formlid-js is Form helper package for Solid-JS with Yup as the validation schema",
   "license": "MIT",
   "scripts": {
-    "build":"npx tsc",
+    "build":"rm -rf lib && npx tsc",
     "publish": "rm -rf lib && npm run build && npm publish"
   },
   "main": "lib/index.js",
