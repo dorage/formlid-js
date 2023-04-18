@@ -1,13 +1,20 @@
-import { useForm } from 'formlid-js';
+import { formlid } from 'formlid-js';
 import { Component } from 'solid-js';
 import * as yup from 'yup';
 import styles from './App.module.css';
 import Field from './Field';
 import { FormMeta } from './Meta';
 
-export const initialValues = {
+interface useFieldValues {
+  email: string;
+  password: string;
+  checked: boolean[];
+}
+
+export const initialValues: useFieldValues = {
   email: '',
   password: '',
+  checked: [],
 };
 
 const timer = (ms: number) =>
@@ -18,23 +25,25 @@ const timer = (ms: number) =>
   );
 
 const App: Component = () => {
-  const { form, SolidFormContext, helpers } = useForm({
+  const { form, FormlidProvider, helpers } = formlid({
     initialValues,
     validationSchema: {
       email: yup.string().email('enter a valid email').required(),
       password: yup.string().min(8, 'be at least 8 characters long').required(),
+      checked: yup.array().of(yup.boolean().required()).required(),
     },
     onsubmit: async (data) => {
       await timer(1500);
-
       alert(`email: ${data.email}\npassword: ${data.password}`);
     },
+    validateOnSubmit: false,
   });
 
   return (
     <div class={styles.app}>
       <header class={styles.header}>Hello, Formlid!</header>
-      <SolidFormContext>
+      <div>useField example</div>
+      <FormlidProvider>
         <main class={styles.main}>
           <form {...form()} class={styles.form}>
             <Field name="email" />
@@ -45,7 +54,7 @@ const App: Component = () => {
             <FormMeta isSubmitted={helpers.isSubmitted()} isSubmitting={helpers.isSubmitting()} />
           </form>
         </main>
-      </SolidFormContext>
+      </FormlidProvider>
       <footer>
         made by{' '}
         <a href="https://github.com/dorage" target="_">

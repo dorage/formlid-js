@@ -1,6 +1,6 @@
 import type { Component } from 'solid-js';
+import { formlid } from 'formlid-js';
 import * as yup from 'yup';
-import { useForm } from 'formlid-js';
 import styles from './App.module.css';
 import { FieldMeta, FormMeta } from './Meta';
 
@@ -11,25 +11,37 @@ const timer = (ms: number) =>
     }, ms)
   );
 
+interface useFormValues {
+  email: string;
+  password: string;
+  checked: boolean[];
+}
+
 const App: Component = () => {
-  const { field, meta, form, helpers } = useForm({
+  const { field, meta, form, helpers } = formlid<useFormValues>({
     initialValues: {
       email: '',
       password: '',
+      checked: [],
     },
     validationSchema: {
       email: yup.string().required().email('enter a valid email'),
       password: yup.string().required().min(8, 'be at least 8 characters long'),
+      checked: yup.array().of(yup.boolean().required()).required(),
     },
     onsubmit: async (data, helpers) => {
       await timer(1500);
-      alert(`email: ${data.email}\npassword: ${data.password}`);
+      alert(`submitted!\nemail: ${data.email}\npassword: ${data.password}`);
     },
   });
 
   return (
     <div class={styles.app}>
-      <header class={styles.header}>Hello, Formlid!</header>
+      <header class={styles.header}>
+        Hello, Formlid!
+        <br />
+      </header>
+      <div>formlid example</div>
       <main class={styles.main}>
         <form {...form()} class={styles.form}>
           <div>
