@@ -9,10 +9,10 @@ import {
 
 // Form Context Type
 export interface IFormContext<TFormValue extends object> {
-  field: (name: keyof TFormValue) => IFormlidField<TFormValue>;
-  meta: (name: keyof TFormValue) => IFormlidMeta<TFormValue>;
-  extension: (name: keyof TFormValue) => IFormlidExtension<TFormValue>;
-  form: () => IFormlidForm<TFormValue>;
+  field: IFormlidField<TFormValue>;
+  meta: IFormlidMeta<TFormValue>;
+  extension: IFormlidExtension<TFormValue>;
+  form: () => IFormlidForm;
   helpers: IFormlidHelpers<TFormValue>;
 }
 

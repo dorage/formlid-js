@@ -30,9 +30,7 @@ export type IFormlidExtension<TFormValue extends object> = <TName extends UKey<T
   name: TName
 ) => ReturnType<IFormlidField<TFormValue>> & ReturnType<IFormlidMeta<TFormValue>>;
 
-export type IFormlidForm<TFormValue extends object> = <TName extends UKey<TFormValue>>(
-  name: TName
-) => {
+export type IFormlidForm = () => {
   onsubmit: JSX.CustomEventHandlersCamelCase<HTMLFormElement>['onSubmit'];
 };
 

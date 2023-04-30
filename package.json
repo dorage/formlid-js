@@ -1,7 +1,7 @@
 {
   "name": "formlid-js",
   "author": "dorage",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Formlid-js is Form helper package for Solid-JS with Yup as the validation schema",
   "license": "MIT",
   "scripts": {
