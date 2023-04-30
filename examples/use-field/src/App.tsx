@@ -5,17 +5,11 @@ import styles from './App.module.css';
 import Field from './Field';
 import { FormMeta } from './Meta';
 
-interface useFieldValues {
+export interface useFieldFormlidValues {
   email: string;
   password: string;
   checked: boolean[];
 }
-
-export const initialValues: useFieldValues = {
-  email: '',
-  password: '',
-  checked: [],
-};
 
 const timer = (ms: number) =>
   new Promise((res) =>
@@ -25,8 +19,12 @@ const timer = (ms: number) =>
   );
 
 const App: Component = () => {
-  const { form, FormlidProvider, helpers } = formlid({
-    initialValues,
+  const { form, FormlidProvider, helpers } = formlid<useFieldFormlidValues>({
+    initialValues: {
+      email: '',
+      password: '',
+      checked: [],
+    },
     validationSchema: {
       email: yup.string().email('enter a valid email').required(),
       password: yup.string().min(8, 'be at least 8 characters long').required(),

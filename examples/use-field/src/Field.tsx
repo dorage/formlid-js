@@ -1,14 +1,14 @@
 import { useField } from 'formlid-js';
 import type { Component } from 'solid-js';
-import { initialValues } from './App';
 import { FieldMeta } from './Meta';
+import { useFieldFormlidValues } from './App';
 
 interface FieldProps {
-  name: keyof typeof initialValues;
+  name: keyof useFieldFormlidValues;
 }
 
 const Field: Component<FieldProps> = (props) => {
-  const { field, meta } = useField<typeof initialValues>(props.name);
+  const { field, meta } = useField<useFieldFormlidValues>(props.name);
 
   return (
     <div>
