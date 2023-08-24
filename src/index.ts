@@ -1,5 +1,3 @@
-import formlid from './formlid';
-import useForm from './use-form';
-import useField from './use-field';
+import { createFormlid } from './formlid';
 
-export { formlid, useForm, useField };
+export { createFormlid };

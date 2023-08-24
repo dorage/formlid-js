@@ -1,5 +1,7 @@
 src
 examples
+test
 .gitignore
 .prettierrc
 tsconfig.json
+jest.config.js
