@@ -7,7 +7,10 @@ export type FormlidSubmit<TFormValue extends object> = ReturnType<
 >;
 
 export const createFormlidSubmit =
-  <TFormValue extends object>(form: FormlidForm<TFormValue>, helpers: FormlidSubmitHelpers) =>
+  <TFormValue extends object>(
+    form: FormlidForm<TFormValue>,
+    helpers: FormlidSubmitHelpers<TFormValue>
+  ) =>
   async () => {
     const [isSubmitting, setIsSubmitting] = form.signals.isSubmitting;
     const [isSubmitted, setIsSubmitted] = form.signals.isSubmitted;

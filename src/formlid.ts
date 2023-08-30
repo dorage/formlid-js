@@ -7,8 +7,13 @@ import { createFormHelpers } from './helpers/form';
 import { createFormlidSubmit } from './helpers/submit';
 import { validation } from './helpers/validation';
 import { createMetaHelpers } from './helpers/meta';
+import { createFormlidProvider } from './contexts';
 
 export type Formlid<TFormValue extends object> = ReturnType<typeof createFormlid<TFormValue>>;
+export type FormlidContext<TFormValue extends object> = Omit<
+  ReturnType<typeof createFormlid<TFormValue>>,
+  'FormlidProvider'
+>;
 
 export type ValidationSchema = {
   [key in string]?: Yup.Schema;
@@ -18,38 +23,40 @@ export type ValidationSchema = {
 export interface FormlidProps<TFormValue extends object> {
   initialValues: TFormValue;
   validationSchema?: ValidationSchema;
-  onsubmit: (formData: TFormValue, helpers: FormlidSubmitHelpers) => any | Promise<any>;
-  validateOnSubmit?: boolean | Accessor<boolean>;
+  onsubmit: (formData: TFormValue, helpers: FormlidSubmitHelpers<TFormValue>) => any | Promise<any>;
+  validateOnSubmitOnly?: boolean | Accessor<boolean>;
 }
 
-// TODO; store로 field를 변경
-// TODO; store로 변경해서 store의 변경을 추적하기
+// TODO; add reactive on initialValues & validationSchema in createFormlid props
+// TODO; refactor field signals to Store
 
 export const createFormlid = <TFormValue extends object>(props: FormlidProps<TFormValue>) => {
   const formlidForm = createFormlidForm<TFormValue>(props);
 
-  // submit
-  const submitHelpers = createSubmitHelpers(formlidForm);
-  const submit = createFormlidSubmit(formlidForm, submitHelpers);
-
   // helpers
-  const helpers = createHelpers(submit, submitHelpers);
   const field = createFieldHelpers(formlidForm);
   const meta = createMetaHelpers(formlidForm);
+  // helpers related with submit
+  const submitHelpers = createSubmitHelpers(formlidForm, field, meta);
+  const submit = createFormlidSubmit(formlidForm, submitHelpers);
+  const helpers = createHelpers(submit, submitHelpers);
   const form = createFormHelpers(formlidForm, submit);
 
   // validate when form value updated
   createEffect(() => {
     if (props.validationSchema == null) return;
-    if (typeof props.validateOnSubmit === 'boolean') {
-      if (props.validateOnSubmit) return;
+    if (typeof props.validateOnSubmitOnly === 'boolean') {
+      if (props.validateOnSubmitOnly) return;
     }
-    if (typeof props.validateOnSubmit === 'function') {
-      if (props.validateOnSubmit()) return;
+    if (typeof props.validateOnSubmitOnly === 'function') {
+      if (props.validateOnSubmitOnly()) return;
     }
 
     validation(formlidForm, false);
   });
 
-  return { form, field, meta, helpers };
+  // create formlid context provider
+  const FormlidProvider = createFormlidProvider({ form, field, meta, helpers });
+
+  return { form, field, meta, helpers, FormlidProvider };
 };
