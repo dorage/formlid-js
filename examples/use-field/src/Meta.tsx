@@ -1,12 +1,11 @@
-import { Component, Show, Switch } from 'solid-js';
+import { Component } from 'solid-js';
 import styles from './Meta.module.css';
 
 interface FieldMetaProps {
   error: string;
-  isFocus: boolean;
   isTouched: boolean;
-  isError: boolean;
-  isSuccess: boolean;
+  isFocused: boolean;
+  isValidated: boolean;
 }
 
 export const FieldMeta: Component<FieldMetaProps> = (props) => {
@@ -17,16 +16,13 @@ export const FieldMeta: Component<FieldMetaProps> = (props) => {
       </label>
       <div class={styles.fields}>
         <label class={styles.field}>
-          isFocus <Checker on={props.isFocus} />
+          isFocus <Checker on={props.isFocused} />
         </label>
         <label class={styles.field}>
           isTouched <Checker on={props.isTouched} />
         </label>
         <label class={styles.field}>
-          isError <Checker on={props.isError} />
-        </label>
-        <label class={styles.field}>
-          isSuccess <Checker on={props.isSuccess} />
+          isValidated <Checker on={props.isValidated} />
         </label>
       </div>
     </div>

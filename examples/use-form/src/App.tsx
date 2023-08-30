@@ -13,23 +13,20 @@ const timer = (ms: number) =>
     }, ms)
   );
 
-interface InitialValue {
+interface FormValue {
   email: string;
   password: string;
-  age: number;
+  age?: number;
   checked: boolean[];
 }
 
 const App: Component = () => {
-  const [value, setValue] = createSignal({
-    email: 'a@a.com',
-    password: '',
-    age: 59,
-    checked: [],
-  });
-
-  const { field, meta, form, helpers } = createFormlid<InitialValue>({
-    initialValues: value(),
+  const { field, meta, form } = createFormlid<FormValue>({
+    initialValues: {
+      email: 'a@a.com',
+      password: '',
+      checked: [],
+    },
     validationSchema: {
       email: yup.string().required().email('enter a valid email'),
       password: yup.string().required().min(8, 'be at least 8 characters long'),
@@ -37,6 +34,7 @@ const App: Component = () => {
     },
     onsubmit: async (data, helpers) => {
       await timer(delay);
+
       alert(`submitted!\nemail: ${data.email}\npassword: ${data.password}`);
     },
   });
@@ -60,6 +58,7 @@ const App: Component = () => {
             <input type="password" {...field('password')} autocomplete="off" />
             <FieldMeta {...meta('password')} />
           </div>
+          <span />
           <button type="submit" disabled={form.isSubmitting()}>
             submit after {delay}ms
           </button>
