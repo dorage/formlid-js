@@ -27,36 +27,38 @@ try to check projects under `examples/`
 
 ## APIs
 
-### formlid
+### createFormlid
 
-({
-  initialValues: TFormValue;
-  validationSchema?: validationSchema\<TFormValue>;
-  onsubmit: (formData: TFormValue, helpers: FormlidHelpers\<TFormValue>) => void;
-  validateOnSubmit?: boolean;
-}) => {
-  field: FormlidField\<TFormValue>;
-  meta: FormlidMeta\<TFormValue>;
-  extension: FormlidExtension\<TFormValue>;
-  form: FormlidForm\<TFormValue>;
-  helpers: FormlidHelpers\<TFormValue>;
-  FormlidProvider: Component<{ children: JSX.Element }>,
-}
+create formlid store.
 
 #### without context
 
 ```typescript
-  const { field, form, helpers } = formlid({
+  // formlid value type
+  interface InitialValue {
+    email: string;
+    password: string;
+    age?: number;
+    checked: boolean[];
+  }
+
+  ...
+
+  const { field, meta, form } = createFormlid<InitialValue>({
     initialValues: {
       email: '',
       password: '',
+      checked: [],
     },
     validationSchema: {
       email: yup.string().required().email('enter a valid email'),
       password: yup.string().required().min(8, 'be at least 8 characters long'),
+      checked: yup.array().of(yup.boolean().required()).required(),
     },
-    onsubmit: (data, helpers) => {
-      alert(`email: ${data.email}\npassword: ${data.password}`);
+    onsubmit: async (data, helpers) => {
+      await delya(1500); // wait for 1500ms
+      alert(`submitted!\nemail: ${data.email}\npassword: ${data.password}`);
+      console.log(helpers.getValues());
     },
   });
 
@@ -64,7 +66,7 @@ try to check projects under `examples/`
 
 
   return (
-    <form {...form()} class={styles.form}>
+    <form {...form()}>
       <div>
         <label>e-mail</label>
         <input {...field('email')} autocomplete="off" />
@@ -73,8 +75,8 @@ try to check projects under `examples/`
         <label>password</label>
         <input type="password" {...field('password')} autocomplete="off" />
       </div>
-      <button type="submit" disabled={helpers.isSubmitting()}>
-        submit
+      <button type="submit" disabled={form.isSubmitting()}>
+        submit after 1500ms
       </button>
     </form>
   );
@@ -83,60 +85,98 @@ try to check projects under `examples/`
 #### with context
 
 ``` typescript
-  const { form, FormlidProvider, helpers } = Formlid({
-    initialValues,
-    validationSchema: {
-      email: yup.string().email('enter a valid email').required(),
-      password: yup.string().min(8, 'be at least 8 characters long').required(),
-    },
-    onsubmit: async (data) => {
-      await timer(1500);
+// App.tsx
 
-      alert(`email: ${data.email}\npassword: ${data.password}`);
+  // formlid value type
+  interface InitialValue {
+    email: string;
+    password: string;
+    age?: number;
+    checked: boolean[];
+  }
+
+  ...
+
+  const { form, FormlidProvider } = Formlid({
+    initialValues: {
+      email: '',
+      password: '',
+      checked: [],
+    },
+    validationSchema: {
+      email: yup.string().required().email('enter a valid email'),
+      password: yup.string().required().min(8, 'be at least 8 characters long'),
+      checked: yup.array().of(yup.boolean().required()).required(),
+    },
+    onsubmit: async (data, helpers) => {
+      await delya(1500); // wait for 1500ms
+      alert(`submitted!\nemail: ${data.email}\npassword: ${data.password}`);
+      console.log(helpers.getValues());
     },
   });
 
   ...
 
   return (
-    <form {...form()} class={styles.form}>
+    <form {...form()}>
       <FormlidProvider>
+        <!-- custom components -->
         <Field name="email" />
         <Field name="password" />
-        <button type="submit" disabled={helpers.isSubmitting()}>
+        <button type="submit" disabled={form.isSubmitting()}>
           submit
         </button>
       </FormlidProvider>
     </form>
   );
+
+// Field.tsx
+
+const Field = (props) => {
+  const {field, meta, helpers} = useField(props.name);
+
+  ...
+
+  return (
+    <div>
+      <label>{props.name}</label>
+      <input {...field()} value={`${field().value}`} />
+    </div>
+  );
+}
+
 ```
 
-| argument | type           | description  |
-| - | - | - |
-| initialValues | TFormValue | The initial values of the form |
-| validationSchema | validationSchema\<TFormValue>? | A Yup schema used to validate the form |
-| onsubmit | (formData: TFormValue, helpers: FormlidHelpers\<TFormValue>) => void | An event triggered when the form is submitted. It is not called if the validationSchema is invalid. |
-| validateOnSubmit | boolean? | If true, the validation (validate()) is only performed when the form is submitted. If false or omitted, the validation (validate()) is triggered on the oninput event of the fields. |
+#### createFormlid() arguments
+| arguments | Required | type | description |
+| - | - | - | - |
+| initialValues | Required | TFormValue; | initial value of form
+| validationSchema | Optional |  {[key in string]: Yup.Schema} | yup validation schema
+| onsubmit | Required | (formData: TFormValue, helpers: FormlidSubmitHelpers\<TFormValue>) => any \| Promise\<any>; | callback function when submit the form
+| validateOnSubmitOnly | Optional |  boolean \| Accessor\<boolean>; | validate with validation schema when submit is emitted only
+
+#### createFormlid() returns
+| field | type |
+| - | - | 
+| form |  |
+| field |  |
+| meta |  |
+| helpers |  |
+| FormlidProvider | Component<{children: JSX.Element}> |
+
+
 
 ### useForm
 
-\<TFormValue>(name: keyof TFormValue) => Omit
-\<ReturnType\<Formlid>, 'FormlidProvider'>
+It is a wrapper function of useContext. when you should call createFormlid() in a parent component of the component that has form element.
 
-It is the same library. Please find the translation from Korean to English below:
-The useForm function works the same as Formlid(), but it operates within the context created by Formlid. Therefore, useForm does not have a FormlidProvider.
+Thus, you should use call useForm() in a child component under the FormlidProvider.
 
-### useField
-
-\<TFormValue>(name: keyof TFormValue) => {
-  field: () => ReturnType<FormlidField\<TFormValue>>;
-  meta: () => ReturnType<FormlidMeta\<TFormValue>>;
-  extension: () => ReturnType<FormlidExtension\<TFormValue>>;
-  helpers: {},
-}
+It returns same object as createFormlid() without FormlidProvider. 
 
 ```typescript
-  const { field } = useField(props.name);
+
+  const { field } = useForm(); 
 
   return (
     <div>
@@ -144,33 +184,66 @@ The useForm function works the same as Formlid(), but it operates within the con
       <input {...field()} />
     </div>
   );
+
 ```
 
+#### useForm() arguments
+| arguments | Required | type | description |
+| - | - | - | - |
+
+
+#### useForm() returns
+| field | type |
+| - | - | 
+| form |  |
+| field |  |
+| meta |  |
+| helpers |  |
+
+
+### useField
+
+It is a wrapper function of useContext. when you should call createFormlid() in a parent component of the component that has form element.
+
+Thus, you should use call useForm() in a child component under the FormlidProvider.
+
+It returns same object as createFormlid() without FormlidProvider.
+
+You do not need to forward the name When calling a function that previously required a name like field(), meta(), helpers.setValue(), etc.
+
+
+```typescript
+
+  const { field } = useField('name'); 
+
+  return (
+    <div>
+      <label>{props.name}</label>
+      <input {...field()} />
+    </div>
+  );
+
+```
+
+#### useField() arguments
 | arguments | type | description |
 | - | - | - |
-| name | keyof TFormValue | One of the keys of the initialValue in Formlid.
+| name | keyof TFormValue | One of the key of the initialValue.
+
+#### useField() returns
+| field | type |
+| - | - | 
+| form |  |
+| field |  |
+| meta |  |
+| helpers |  |
 
 ### TFormValue
 
-TFormValue is the shape of the form data.
-
-When you submit the form, you will receive a result of type TFormValue.
-
-### FormlidField<TFormValue extends object>
-
-### FormlidMeta<TFormValue extends object>
-
-### FormlidExtension<TFormValue extends object>
-
-### FormlidForm<TFormValue extends object>
-
-```text
-┬┴┬┴┬┴┤´❛ᴥ❛`ʔฅ = Sorry, I'm preparing API documents
-```
 
 ## Contributing
 
-Pull requests are welcome.
+"Pull Requests are welcome."
 
 For major changes, please open an issue first
 to discuss what you would like to change.

@@ -3,4 +3,5 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
   },
+  preset: 'solid-jest/preset/node',
 };

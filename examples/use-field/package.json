@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "start": "vite",
-    "dev": "vite",
+    "dev": "npm uninstall formlid-js && npm install ../../../formlid-js && npm run start",
     "build": "vite build",
     "serve": "vite preview"
   },
