@@ -158,11 +158,11 @@ const Field = (props) => {
 #### createFormlid() returns
 | field | type |
 | - | - | 
-| form |  |
-| field |  |
-| meta |  |
-| helpers |  |
-| FormlidProvider | Component<{children: JSX.Element}> |
+| form | FormlidFormHelpers |
+| field | FormlidFieldHelpers<TFormValue> |
+| meta | FormlidMetaHelpers<TFormValue> |
+| helpers | FormlidHelpers<TFormValue> |
+| FormlidProvider | FormlidProviderComponent |
 
 
 
@@ -195,10 +195,10 @@ It returns same object as createFormlid() without FormlidProvider.
 #### useForm() returns
 | field | type |
 | - | - | 
-| form |  |
-| field |  |
-| meta |  |
-| helpers |  |
+| form | FormlidFormHelpers |
+| field | FormlidFieldHelpers<TFormValue> |
+| meta | FormlidMetaHelpers<TFormValue> |
+| helpers | FormlidHelpers<TFormValue> |
 
 
 ### useField
@@ -233,16 +233,42 @@ You do not need to forward the name When calling a function that previously requ
 #### useField() returns
 | field | type |
 | - | - | 
-| form |  |
-| field |  |
-| meta |  |
-| helpers |  |
+| form | UseFieldFormHelpers |
+| field | UseFieldFieldHelpers<TFormValue> |
+| meta | UseFieldMetaHelpers<TFormValue> |
+| helpers | UseFieldHelpers<TFormValue> |
 
 
 ## Types
 
 ### TFormValue
 
+It is type of value which a formlid store and manage.
+initialValues props of createFormlid() follows this type
+
+```typescript
+  TFormValue: object
+```
+
+### FormlidFormHelpers;
+### FormlidFieldHelpers<TFormValue>;
+### FormlidMetaHelpers<TFormValue>;
+### FormlidHelpers<TFormValue>;
+### FormlidProviderComponent;
+### UseFieldFormHelpers
+### UseFieldFieldHelpers<TFormValue>
+### UseFieldMetaHelpers<TFormValue>
+### UseFieldHelpers<TFormValue>
+
+## Todo
+
+[ ] Write Types, Field in README.md
+
+[ ] Write tests
+
+[ ] Add reactive on initialValues & validationSchema to createFormlid  props
+
+[ ] refactor Signals to Store
 
 ## Contributing
 
