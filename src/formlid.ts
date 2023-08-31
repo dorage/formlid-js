@@ -1,15 +1,27 @@
-import { Accessor, createEffect } from 'solid-js';
+import { Accessor, Component, createEffect } from 'solid-js';
 import * as Yup from 'yup';
 import { createFormlidForm } from './form';
-import { createHelpers, createSubmitHelpers, FormlidSubmitHelpers } from './helpers';
-import { createFieldHelpers } from './helpers/field';
-import { createFormHelpers } from './helpers/form';
+import {
+  createHelpers,
+  createSubmitHelpers,
+  FormlidHelpers,
+  FormlidSubmitHelpers,
+} from './helpers';
+import { FormlidFieldHelpers, createFieldHelpers } from './helpers/field';
+import { FormlidFormHelpers, createFormHelpers } from './helpers/form';
 import { createFormlidSubmit } from './helpers/submit';
 import { validation } from './helpers/validation';
-import { createMetaHelpers } from './helpers/meta';
-import { createFormlidProvider } from './contexts';
+import { FormlidMetaHelpers, createMetaHelpers } from './helpers/meta';
+import { FormlidProviderComponent, createFormlidProvider } from './contexts';
 
-export type Formlid<TFormValue extends object> = ReturnType<typeof createFormlid<TFormValue>>;
+export interface Formlid<TFormValue extends object> {
+  form: FormlidFormHelpers;
+  field: FormlidFieldHelpers<TFormValue>;
+  meta: FormlidMetaHelpers<TFormValue>;
+  helpers: FormlidHelpers<TFormValue>;
+  FormlidProvider: FormlidProviderComponent;
+}
+
 export type FormlidContext<TFormValue extends object> = Omit<
   ReturnType<typeof createFormlid<TFormValue>>,
   'FormlidProvider'
@@ -30,7 +42,9 @@ export interface FormlidProps<TFormValue extends object> {
 // TODO; add reactive on initialValues & validationSchema in createFormlid props
 // TODO; refactor field signals to Store
 
-export const createFormlid = <TFormValue extends object>(props: FormlidProps<TFormValue>) => {
+export const createFormlid = <TFormValue extends object>(
+  props: FormlidProps<TFormValue>
+): Formlid<TFormValue> => {
   const formlidForm = createFormlidForm<TFormValue>(props);
 
   // helpers

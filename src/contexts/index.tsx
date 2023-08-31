@@ -1,7 +1,9 @@
-import { JSX, createContext, useContext } from 'solid-js';
+import { Component, JSX, createContext, useContext } from 'solid-js';
 import { FormlidContext } from '../formlid';
 
 const FormlidContext = createContext<any | null>(null);
+
+export type FormlidProviderComponent = Component<FormlidContextProviderProps>;
 
 export interface FormlidContextProviderProps {
   children: JSX.Element;
